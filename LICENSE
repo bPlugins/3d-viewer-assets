@@ -2,5 +2,10 @@ The HDR images in hdri/ are by Poly Haven (https://polyhaven.com) and are
 dedicated to the public domain under CC0 1.0 Universal:
 https://creativecommons.org/publicdomain/zero/1.0/
 
-To the extent possible under law, the remaining files in this repository
-(README, SHA256SUMS) are likewise dedicated to the public domain under CC0 1.0.
+To the extent possible under law, README and SHA256SUMS are likewise dedicated
+to the public domain under CC0 1.0.
+
+landing-page/ is not covered by CC0. The page and its code are (c) bPlugins,
+all rights reserved. Its screenshots show "Materials Variants Shoe" (c) Shopify
+Inc. and "Sheen Chair" (c) Wayfair LLC from the Khronos glTF Sample Assets,
+used under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).

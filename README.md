@@ -34,8 +34,22 @@ https://raw.githubusercontent.com/bPlugins/3d-viewer-assets/v1/hdri/<file>
 https://cdn.jsdelivr.net/gh/bPlugins/3d-viewer-assets@v1/hdri/<file>
 ```
 
+## `landing-page/` — product landing page
+
+A standalone, animated landing page for **3D Product Configurator for
+WooCommerce**: a live three.js product that recolors, comes apart, gets
+engraved, gets priced and drops into AR as you scroll, followed by feature
+sections. Open `landing-page/index.html` in a browser. It loads three.js r128
+and Hanken Grotesk from public CDNs; everything else is in the folder.
+
+The plugins never download anything from this folder, and it is not part of
+any tag's HDRI set.
+
 ## License
 
 The HDR images are by [Poly Haven](https://polyhaven.com/hdris) and released
 under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (public
 domain). See [LICENSE](LICENSE).
+
+`landing-page/` is not CC0: it is © bPlugins, and its screenshots show CC BY 4.0
+models credited in the page footer and in [LICENSE](LICENSE).
