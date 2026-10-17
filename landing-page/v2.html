@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D Product Configurator Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Try the 3D Product Configurator for WooCommerce right on this page: spin, color, engrave and price a product in 3D.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a light studio page that opens on a working configurator, then hands-on demos stacked as white cards on paper. */
+:root{
+  --paper:#f3f4f7;
+  --white:#fff;
+  --ink:#16181d;
+  --muted:#636873;
+  --soft:#8a8f98;
+  --line:#dfe2e8;
+  --blue:#146ef5;
+  --blue-deep:#0d5ad1;
+  --blue-tint:#e8f0fe;
+  --coral:#e8735f;
+  --green:#1f9d55;
+  --stage:#eceef2;
+  --display:"Hanken Grotesk",system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+  --gl:max(16px, env(safe-area-inset-left, 0px));
+  --gr:max(16px, env(safe-area-inset-right, 0px));
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--display);font-size:17px;line-height:1.47;-webkit-font-smoothing:antialiased;overflow-x:clip}
+img{max-width:100%;display:block}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:8px}
+section[id]{scroll-margin-top:64px}
+.wrap{max-width:1120px;margin-inline:auto;padding-left:var(--gl);padding-right:var(--gr)}
+
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:rgba(243,244,247,.78);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid rgba(0,0,0,.06)}
+.nav .wrap{display:flex;align-items:center;gap:22px;height:54px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none;color:var(--ink);white-space:nowrap}
+.nav-links{display:flex;gap:22px;margin-left:auto;font-size:14px}
+.nav-links a{color:var(--muted);text-decoration:none}
+.nav-links a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:9px 20px;border-radius:999px;border:0;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .2s,transform .15s,box-shadow .2s}
+.btn:active{transform:scale(.97)}
+.btn-blue{background:var(--blue);color:var(--white)}
+.btn-blue:hover{background:var(--blue-deep)}
+.btn-line{background:var(--white);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn-line:hover{box-shadow:inset 0 0 0 1px #c3c8d1}
+.btn-sm{min-height:32px;padding:5px 14px;font-size:13px}
+.btn-link{color:var(--blue);font-weight:600;text-decoration:none}
+.btn-link span{text-underline-offset:4px}
+.btn-link:hover span{text-decoration:underline}
+.btn-link::after{content:" ›"}
+@media (max-width:760px){.nav-links{display:none}.nav .btn{margin-left:auto}}
+
+/* hero + configurator */
+.hero{padding-block:clamp(40px,7vw,84px) clamp(56px,8vw,96px)}
+.hero-head{text-align:center;max-width:820px;margin-inline:auto}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.hero h1{font-size:clamp(42px,6.6vw,84px);line-height:1.02;letter-spacing:-.035em;margin-top:10px}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.hero-head p{margin:18px auto 0;max-width:42ch;font-size:clamp(17px,1.6vw,21px);color:var(--muted)}
+.load-in{animation:loadIn .9s var(--ease) both;animation-delay:var(--d,0s)}
+@keyframes loadIn{from{opacity:0;transform:translateY(20px)}}
+
+.cfg{margin-top:clamp(32px,4.5vw,52px);display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);background:var(--white);border-radius:28px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05),0 30px 80px -30px rgba(16,24,40,.25)}
+.cfg-stage{position:relative;background:radial-gradient(80% 70% at 50% 45%,#fbfbfd,var(--stage));min-height:480px}
+.cfg-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none}
+.cfg-stage canvas:focus-visible{box-shadow:inset 0 0 0 3px var(--blue)}
+.hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:13px;color:var(--muted);box-shadow:0 1px 3px rgba(0,0,0,.08);transition:opacity .5s;pointer-events:none;white-space:nowrap}
+.hint i{width:18px;height:18px;border-radius:50%;border:2px solid var(--soft);position:relative;animation:nudge 1.8s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
+.hint.gone{opacity:0}
+.stage-tools{position:absolute;left:16px;top:16px;display:flex;flex-direction:column;gap:8px}
+.tool{width:38px;height:38px;border-radius:12px;border:0;background:rgba(255,255,255,.9);box-shadow:0 1px 3px rgba(0,0,0,.1);display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.tool:hover{background:var(--white)}
+.tool[aria-pressed="true"]{background:var(--ink);color:var(--white)}
+.no-gl .cfg-stage::after{content:"3D preview needs WebGL";position:absolute;inset:0;display:grid;place-items:center;color:var(--muted)}
+
+.cfg-panel{display:flex;flex-direction:column;border-left:1px solid var(--line);min-width:0}
+.cfg-head{padding:22px 24px 14px;border-bottom:1px solid var(--line)}
+.cfg-head h2{font-size:21px}
+.cfg-head p{font-size:14px;color:var(--muted);margin-top:2px}
+.cfg-body{padding:6px 24px 10px;flex:1}
+.grp{padding:14px 0;border-bottom:1px solid #eef0f3}
+.grp:last-child{border-bottom:0}
+.grp-label{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;font-weight:600}
+.grp-label span{font-weight:500;color:var(--muted)}
+.sw-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.sw{position:relative;width:34px;height:34px;border-radius:50%;border:0;padding:0;cursor:pointer;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);transition:transform .2s}
+.sw::after{content:"";position:absolute;inset:-5px;border-radius:50%;box-shadow:0 0 0 2px transparent;transition:box-shadow .2s}
+.sw[aria-pressed="true"]::after{box-shadow:0 0 0 2px var(--blue)}
+.sw:hover{transform:scale(1.06)}
+.seg{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.chip{padding:8px 14px;border-radius:12px;border:0;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);font-size:14px;font-weight:600;cursor:pointer;display:flex;gap:6px;align-items:baseline}
+.chip small{font-weight:600;color:var(--blue);font-size:12px}
+.chip[aria-pressed="true"]{background:var(--blue-tint);box-shadow:inset 0 0 0 2px var(--blue)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;cursor:pointer}
+.toggle input{position:absolute;opacity:0;pointer-events:none}
+.switch{width:44px;height:26px;border-radius:99px;background:#cfd3da;position:relative;transition:background .25s;flex:none}
+.switch::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--white);box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .25s var(--ease)}
+.toggle input:checked + .switch{background:var(--green)}
+.toggle input:checked + .switch::after{transform:translateX(18px)}
+.toggle input:focus-visible + .switch{outline:2px solid var(--blue);outline-offset:3px}
+.field{margin-top:10px;display:flex;align-items:center;gap:10px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--line);padding:0 12px;background:var(--white)}
+.field:focus-within{box-shadow:inset 0 0 0 2px var(--blue)}
+.field input{flex:1;min-width:0;border:0;outline:0;padding:11px 0;font:600 16px var(--display);letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--ink)}
+.field span{font-size:12px;color:var(--soft);font-variant-numeric:tabular-nums}
+.cfg-foot{padding:16px 24px 22px;border-top:1px solid var(--line);background:#fafbfc}
+.total{display:flex;justify-content:space-between;align-items:baseline;font-variant-numeric:tabular-nums}
+.total span:first-child{color:var(--muted);font-size:14px}
+.total strong{font-size:26px;letter-spacing:-.02em}
+.lines{font-size:13px;color:var(--muted);margin-top:4px;min-height:1.4em;font-variant-numeric:tabular-nums}
+.actions{display:flex;gap:8px;margin-top:14px}
+.actions .btn-blue{flex:1}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:0;background:var(--white);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;display:grid;place-items:center;flex:none}
+.icon-btn:disabled{opacity:.35;cursor:default}
+.kbd{font-size:12px;color:var(--soft);margin-top:10px}
+kbd{font:600 11px var(--mono);padding:2px 6px;border-radius:5px;background:var(--white);box-shadow:inset 0 0 0 1px var(--line),0 1px 0 var(--line)}
+@media (max-width:900px){.cfg{grid-template-columns:minmax(0,1fr)}.cfg-stage{min-height:360px}.cfg-panel{border-left:0;border-top:1px solid var(--line)}}
+
+.share-pop{position:absolute;right:16px;top:16px;width:min(280px,calc(100% - 32px));background:var(--white);border-radius:20px;padding:16px;box-shadow:0 20px 60px -20px rgba(16,24,40,.35),0 0 0 1px rgba(0,0,0,.05);transform-origin:top right;animation:pop .35s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.9)}}
+.share-pop h3{font-size:16px}
+.share-pop p{font-size:13px;color:var(--muted);margin-top:4px}
+.share-pop .qr{margin:12px auto 10px;width:150px;padding:10px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--line)}
+.share-link{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--paper);font:13px var(--mono);overflow:hidden}
+.share-link code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.share-pop .close{position:absolute;right:10px;top:10px;width:28px;height:28px;border:0;border-radius:50%;background:var(--paper);cursor:pointer}
+[data-qr] svg{display:block;width:100%;height:auto}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;z-index:60;background:var(--ink);color:var(--white);padding:12px 18px;border-radius:14px;font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:opacity .3s,transform .35s var(--ease);pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* sections */
+.sec{padding-block:clamp(72px,10vw,128px)}
+.sec-head{max-width:720px}
+.sec-head.center{text-align:center;margin-inline:auto}
+.sec-head h2{font-size:clamp(36px,5vw,60px);line-height:1.05;letter-spacing:-.03em;margin-top:10px}
+.sec-head p{font-size:clamp(17px,1.6vw,20px);color:var(--muted);margin-top:16px;max-width:40ch}
+.sec-head.center p{margin-inline:auto}
+.card{background:var(--white);border-radius:28px;box-shadow:0 1px 2px rgba(16,24,40,.04),0 20px 60px -30px rgba(16,24,40,.18)}
+@supports (animation-timeline: view()){
+  .rise{animation:rise linear both;animation-timeline:view();animation-range:entry 5% entry 65%}
+  @keyframes rise{from{opacity:0;transform:translateY(40px)}}
+}
+
+.statement{font-size:clamp(28px,4.2vw,50px);line-height:1.15;letter-spacing:-.025em;font-weight:600;max-width:22em}
+.statement .w{transition:color .35s}
+.js .statement .w{color:#c9cdd4}
+.js .statement .w.lit{color:var(--ink)}
+
+/* conditional logic */
+.logic{margin-top:clamp(36px,5vw,56px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden}
+.logic-form{padding:clamp(22px,3vw,36px)}
+.logic-form h3{font-size:22px}
+.logic-form .grp{border-bottom:1px solid #eef0f3}
+.reveal-grp{display:grid;grid-template-rows:1fr;transition:grid-template-rows .45s var(--ease),opacity .35s;opacity:1}
+.reveal-grp > div{overflow:hidden}
+.reveal-grp.hidden{grid-template-rows:0fr;opacity:0}
+.reveal-grp.hidden .grp{padding-block:0;border-bottom-color:transparent}
+.logic-total{display:flex;justify-content:space-between;margin-top:16px;font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+.rules{background:#0f1115;color:#e6e8ec;padding:clamp(22px,3vw,36px);display:flex;flex-direction:column;gap:12px}
+.rules h4{margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#8a8f98}
+.rule{border-radius:16px;padding:14px 16px;background:#181b21;border:1px solid #262a32;transition:border-color .3s,background .3s}
+.rule.active{border-color:#2f7d4f;background:#13241a}
+.rule code{font-family:var(--mono);font-size:13px;color:#9fc1ff}
+.rule p{font-size:14px;margin-top:6px;color:#c9ccd3}
+.rule .state{display:inline-flex;margin-top:10px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:#262a32;color:#8a8f98}
+.rule.active .state{background:#1f9d55;color:var(--white)}
+.note{font-size:13px;color:#8a8f98;margin-top:auto}
+@media (max-width:820px){.logic{grid-template-columns:minmax(0,1fr)}}
+
+/* placement */
+.place{margin-top:clamp(36px,5vw,56px);padding:clamp(18px,3vw,32px)}
+.tabs{display:flex;gap:6px;padding:5px;border-radius:14px;background:var(--paper);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:max-content;padding:9px 14px;border:0;border-radius:10px;background:transparent;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;transition:background .25s,color .25s,box-shadow .25s}
+.tab[aria-selected="true"]{background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.mock{margin-top:22px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(16px,3vw,32px);align-items:start}
+.m-gallery{display:flex;flex-direction:column;gap:10px}
+.m-main{position:relative;aspect-ratio:1/1;border-radius:18px;background:var(--stage);display:grid;place-items:center;overflow:hidden;transition:box-shadow .3s}
+.m-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.m-thumb{aspect-ratio:1;border-radius:12px;background:var(--stage);display:grid;place-items:center;transition:box-shadow .3s}
+.m-info{display:flex;flex-direction:column;gap:12px}
+.bar{height:14px;border-radius:7px;background:#e7e9ee}
+.bar.t{height:26px;width:70%;background:#d9dce3}
+.bar.s{width:40%}
+.m-cart{display:flex;gap:10px}
+.m-cart i{height:42px;border-radius:12px;background:var(--ink);flex:1}
+.m-cart b{height:42px;width:70px;border-radius:12px;background:#e7e9ee}
+.m-tabs{display:flex;gap:16px;border-bottom:1px solid var(--line);margin-top:6px}
+.m-tabs span{padding:8px 0;font-size:13px;font-weight:600;color:var(--soft);border-bottom:2px solid transparent}
+.m-tabs span.on{color:var(--blue);border-bottom-color:var(--blue)}
+.m-tabpanel{border-radius:14px;background:var(--stage);display:grid;place-items:center;height:0;opacity:0;transition:height .45s var(--ease),opacity .3s;overflow:hidden}
+.mock[data-mode="tab"] .m-tabpanel{height:170px;opacity:1}
+.is3d{box-shadow:inset 0 0 0 2px var(--blue)}
+.cube{width:46px;height:46px;position:relative;transform-style:preserve-3d;animation:cube 6s linear infinite}
+.cube i{position:absolute;inset:0;border:2px solid var(--blue);background:rgba(20,110,245,.08);border-radius:4px}
+.cube i:nth-child(1){transform:translateZ(23px)}.cube i:nth-child(2){transform:rotateY(90deg) translateZ(23px)}.cube i:nth-child(3){transform:rotateY(180deg) translateZ(23px)}.cube i:nth-child(4){transform:rotateY(-90deg) translateZ(23px)}.cube i:nth-child(5){transform:rotateX(90deg) translateZ(23px)}.cube i:nth-child(6){transform:rotateX(-90deg) translateZ(23px)}
+.cube.sm{width:22px;height:22px}
+.cube.sm i{border-width:1.5px}
+.cube.sm i:nth-child(1){transform:translateZ(11px)}.cube.sm i:nth-child(2){transform:rotateY(90deg) translateZ(11px)}.cube.sm i:nth-child(3){transform:rotateY(180deg) translateZ(11px)}.cube.sm i:nth-child(4){transform:rotateY(-90deg) translateZ(11px)}.cube.sm i:nth-child(5){transform:rotateX(90deg) translateZ(11px)}.cube.sm i:nth-child(6){transform:rotateX(-90deg) translateZ(11px)}
+@keyframes cube{to{transform:rotateX(-25deg) rotateY(360deg)}}
+.photo{width:48%;aspect-ratio:1;border-radius:50%;background:linear-gradient(145deg,#dfe2e8,#c9cdd5)}
+.m-main .pop3d{position:absolute;left:14px;bottom:14px;padding:8px 14px;border-radius:10px;background:var(--ink);color:var(--white);font-size:13px;font-weight:600;border:0;cursor:pointer;display:none}
+.mock[data-mode="modal"] .m-main .pop3d{display:inline-flex}
+.overlay{position:absolute;inset:0;background:rgba(15,17,21,.55);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.open{opacity:1;pointer-events:auto}
+.overlay div{width:72%;aspect-ratio:1;border-radius:16px;background:var(--white);display:grid;place-items:center;box-shadow:inset 0 0 0 2px var(--blue)}
+.code{display:none;margin-top:16px;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:#0f1115;color:#cfe0ff;font:14px var(--mono)}
+.code code{flex:1;min-width:0;overflow-x:auto;white-space:nowrap}
+.code button{border:0;border-radius:8px;padding:6px 10px;background:#262a32;color:#fff;font-size:12px;cursor:pointer}
+.place[data-mode="shortcode"] .code{display:flex}
+.place-note{margin-top:16px;font-size:15px;color:var(--muted);min-height:3em}
+@media (max-width:700px){.mock{grid-template-columns:minmax(0,1fr)}}
+
+/* loading */
+.load{margin-top:clamp(36px,5vw,56px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);overflow:hidden}
+.load-copy{padding:clamp(22px,3vw,36px);display:flex;flex-direction:column;gap:14px}
+.load-copy h3{font-size:22px}
+.load-copy p{color:var(--muted);font-size:15px}
+.steps-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.steps-list li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--paper);transition:background .3s,color .3s;color:var(--muted)}
+.steps-list li.done{background:#e8f6ee;color:#14532d}
+.steps-list li b{flex:none;width:20px;height:20px;border-radius:50%;background:#d5d9e0;color:var(--white);display:grid;place-items:center;font-size:11px}
+.steps-list li.done b{background:var(--green)}
+.load-stage{position:relative;min-height:360px;background:radial-gradient(80% 70% at 50% 45%,#fbfbfd,var(--stage))}
+.load-stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.poster{position:absolute;inset:0;display:grid;place-items:center;transition:opacity .5s}
+.poster svg{width:min(260px,60%);height:auto;opacity:.9}
+.poster.gone{opacity:0;pointer-events:none}
+.interact{position:absolute;left:50%;bottom:22px;transform:translateX(-50%)}
+@media (max-width:820px){.load{grid-template-columns:minmax(0,1fr)}}
+
+/* faq */
+.faq{margin-top:clamp(36px,5vw,56px);max-width:820px;margin-inline:auto}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:16px;padding:22px 4px;font-size:clamp(18px,1.8vw,21px);font-weight:600}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-size:26px;line-height:1;color:var(--soft);transition:transform .3s var(--ease)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{padding:0 4px 22px;color:var(--muted);max-width:62ch}
+
+.cta{text-align:center}
+.cta h2{font-size:clamp(44px,7vw,88px);line-height:1;letter-spacing:-.04em}
+.cta p{margin:18px auto 0;color:var(--muted);font-size:19px;max-width:36ch}
+.cta .row{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;margin-top:30px}
+.cta .reqs{font-size:14px;margin-top:24px}
+.foot{border-top:1px solid var(--line);padding-block:24px 36px;font-size:12px;color:var(--muted);line-height:1.5}
+.foot ol{margin:0 0 16px;padding-left:18px;display:grid;gap:6px;max-width:74em}
+.foot a{color:var(--ink)}
+.foot-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px;padding-top:14px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7L12 2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3.8 7.2 12 11.6l8.2-4.4M12 11.6v9.6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      3D Product Configurator
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#try">Try it</a><a href="#rules">Rules</a><a href="#placement">Placement</a><a href="#speed">Speed</a><a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-blue btn-sm" href="https://bplugins.com/products/woocommerce-product-configurator/" target="_blank" rel="noopener">Buy</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" id="try">
+    <div class="wrap">
+      <div class="hero-head">
+        <p class="eyebrow load-in">3D Product Configurator for WooCommerce</p>
+        <h1 class="load-in" style="--d:.1s">Don't read about it.<br><em>Build one.</em></h1>
+        <p class="load-in" style="--d:.2s">This is the kind of customizer your shoppers get. Turn it, pick the parts, add initials and watch the price.</p>
+      </div>
+
+      <div class="cfg load-in" style="--d:.3s" id="cfg">
+        <div class="cfg-stage" id="cfg-stage">
+          <canvas id="cfg-canvas" aria-label="Demo headphones in 3D. Drag or use the arrow keys to turn them."></canvas>
+          <div class="stage-tools">
+            <button class="tool" id="t-explode" aria-pressed="false" title="Exploded view" aria-label="Exploded view"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+            <button class="tool" id="t-reset" title="Reset view" aria-label="Reset view"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg></button>
+          </div>
+          <div class="hint" id="hint"><i></i>Drag to turn</div>
+          <div class="share-pop" id="share-pop" hidden>
+            <button class="close" id="share-close" aria-label="Close">✕</button>
+            <h3>Share this design</h3>
+            <p>On a real store, this link reopens the product with every choice. Here it opens the live demo.</p>
+            <div class="qr" id="share-qr" data-qr-live></div>
+            <div class="share-link"><code id="share-code">example.com/?wc3d=…</code><button class="btn btn-sm btn-line" id="share-copy">Copy</button></div>
+          </div>
+        </div>
+        <div class="cfg-panel">
+          <div class="cfg-head"><h2>Over-ear headphones</h2><p>Demo product · from $249.00</p></div>
+          <div class="cfg-body">
+            <div class="grp">
+              <div class="grp-label">Ear cups <span id="l-cup">Sand</span></div>
+              <div class="sw-row" role="group" aria-label="Ear cup finish" data-group="cup"></div>
+            </div>
+            <div class="grp">
+              <div class="grp-label">Headband <span id="l-band">Ivory</span></div>
+              <div class="sw-row" role="group" aria-label="Headband color" data-group="band"></div>
+            </div>
+            <div class="grp">
+              <div class="grp-label">Cushions</div>
+              <div class="seg" role="group" aria-label="Cushions" data-group="cushion"></div>
+            </div>
+            <div class="grp">
+              <label class="toggle"><span class="grp-label" style="margin:0">Steel trim ring</span><input type="checkbox" id="trim" checked><span class="switch"></span></label>
+            </div>
+            <div class="grp">
+              <div class="grp-label">Engraving <span>+$10.00</span></div>
+              <label class="field"><input id="engrave" maxlength="3" placeholder="Your initials" autocomplete="off" aria-label="Engraving, up to 3 characters"><span id="engrave-count">0/3</span></label>
+            </div>
+          </div>
+          <div class="cfg-foot">
+            <div class="total"><span>Total</span><strong id="total">$249.00</strong></div>
+            <div class="lines" id="lines">Base price</div>
+            <div class="actions">
+              <button class="icon-btn" id="undo" aria-label="Undo" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+              <button class="icon-btn" id="redo" aria-label="Redo" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
+              <button class="icon-btn" id="share" aria-label="Share design"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+              <button class="btn btn-blue" id="add">Add to cart</button>
+            </div>
+            <p class="kbd"><kbd>Ctrl</kbd> <kbd>Z</kbd> to undo, <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd> to redo, up to 50 steps.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-top:0">
+    <div class="wrap">
+      <p class="statement" id="statement">Everything you just did, your shoppers can do on your product page. Each choice goes to the cart and the order, so you know exactly what to make and ship.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="rules" style="background:var(--white)">
+    <div class="wrap">
+      <div class="sec-head rise">
+        <p class="eyebrow">Conditional logic</p>
+        <h2>Only the options that make sense.</h2>
+        <p>Show a group only for certain variations or after an earlier pick. Try it: switch the connection and watch the groups and the rules.</p>
+      </div>
+      <div class="card logic rise" style="box-shadow:0 0 0 1px var(--line)">
+        <div class="logic-form">
+          <h3>Over-ear headphones</h3>
+          <div class="grp">
+            <div class="grp-label">Connection</div>
+            <div class="seg" role="group" aria-label="Connection" id="conn">
+              <button class="chip" data-v="wired" aria-pressed="true">Wired</button>
+              <button class="chip" data-v="wireless" aria-pressed="false">Wireless <small>+$50</small></button>
+            </div>
+          </div>
+          <div class="reveal-grp" id="g-cable"><div><div class="grp">
+            <div class="grp-label">Cable color <span id="cable-name">Black</span></div>
+            <div class="seg" role="group" aria-label="Cable color" id="cable">
+              <button class="chip" data-v="Black" aria-pressed="true">Black</button>
+              <button class="chip" data-v="White" aria-pressed="false">White</button>
+              <button class="chip" data-v="Braided" aria-pressed="false">Braided <small>+$12</small></button>
+            </div>
+          </div></div></div>
+          <div class="reveal-grp hidden" id="g-case"><div><div class="grp">
+            <div class="grp-label">Charging case</div>
+            <div class="seg" role="group" aria-label="Charging case" id="case">
+              <button class="chip" data-v="none" aria-pressed="true">None</button>
+              <button class="chip" data-v="fabric" aria-pressed="false">Fabric case <small>+$29</small></button>
+            </div>
+          </div></div></div>
+          <div class="logic-total"><span>Total</span><span id="logic-total">$249.00</span></div>
+        </div>
+        <div class="rules" aria-live="polite">
+          <h4>Rules on this product</h4>
+          <div class="rule active" id="r-cable"><code>Cable color</code><p>Show when <b>Connection</b> is <b>Wired</b></p><span class="state">Showing</span></div>
+          <div class="rule" id="r-case"><code>Charging case</code><p>Show when <b>Connection</b> is <b>Wireless</b></p><span class="state">Hidden</span></div>
+          <p class="note" id="logic-note">Hidden groups are never required and never charged.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="placement">
+    <div class="wrap">
+      <div class="sec-head center rise">
+        <p class="eyebrow">Placement</p>
+        <h2>Put the 3D where it sells.</h2>
+        <p>Set a default for the whole store and change it on any product.</p>
+      </div>
+      <div class="card place rise" id="place" data-mode="replace">
+        <div class="tabs" role="tablist" aria-label="Viewer position">
+          <button class="tab" role="tab" aria-selected="true" data-mode="replace">Main image</button>
+          <button class="tab" role="tab" aria-selected="false" data-mode="gallery">First gallery slide</button>
+          <button class="tab" role="tab" aria-selected="false" data-mode="modal">“View in 3D” popup</button>
+          <button class="tab" role="tab" aria-selected="false" data-mode="tab">3D View tab</button>
+          <button class="tab" role="tab" aria-selected="false" data-mode="shortcode">Shortcode</button>
+        </div>
+        <div class="mock" id="mock" data-mode="replace" aria-hidden="true">
+          <div class="m-gallery">
+            <div class="m-main" id="m-main"><span class="cube"><i></i><i></i><i></i><i></i><i></i><i></i></span><button class="pop3d" id="pop3d" tabindex="-1">View in 3D</button><div class="overlay" id="overlay"><div><span class="cube"><i></i><i></i><i></i><i></i><i></i><i></i></span></div></div></div>
+            <div class="m-thumbs"><span class="m-thumb" id="m-first"></span><span class="m-thumb"></span><span class="m-thumb"></span><span class="m-thumb"></span></div>
+          </div>
+          <div class="m-info">
+            <span class="bar t"></span><span class="bar s"></span><span class="bar"></span><span class="bar" style="width:85%"></span>
+            <div class="m-cart"><b></b><i></i></div>
+            <div class="m-tabs"><span>Description</span><span>Reviews</span><span id="m-tab3d">3D View</span></div>
+            <div class="m-tabpanel"><span class="cube"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          </div>
+        </div>
+        <div class="code"><code>[wc3d_viewer id="42" height="480px" customizer="true"]</code><button id="copy-sc">Copy</button></div>
+        <p class="place-note" id="place-note">The 3D viewer takes the place of the main product image.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="speed" style="background:var(--white)">
+    <div class="wrap">
+      <div class="sec-head rise">
+        <p class="eyebrow">Page speed</p>
+        <h2>Light until they ask for 3D.</h2>
+        <p>With “Click to interact”, the product page loads a poster image and a script of about 12 KB. The 3D engine loads on the first click.</p>
+      </div>
+      <div class="card load rise" style="box-shadow:0 0 0 1px var(--line)">
+        <div class="load-copy">
+          <h3>Try it: this viewer hasn't loaded yet.</h3>
+          <ol class="steps-list" id="load-steps">
+            <li class="done"><b>1</b><span>Poster image and a small storefront script</span></li>
+            <li><b>2</b><span>Shopper clicks “Interact in 3D”</span></li>
+            <li><b>3</b><span>The 3D engine and the model load, the poster fades out</span></li>
+          </ol>
+          <p>You can also choose “Auto-load when visible” or “Load immediately”, for the whole store or one product.</p>
+        </div>
+        <div class="load-stage" id="load-stage">
+          <canvas id="load-canvas" aria-label="Demo headphones in 3D, loaded on request"></canvas>
+          <div class="poster" id="poster" aria-hidden="true">
+            <svg viewBox="0 0 200 180" fill="none"><path d="M40 110V86a60 60 0 0 1 120 0v24" stroke="#c3c8d1" stroke-width="12" stroke-linecap="round"/><rect x="22" y="96" width="40" height="64" rx="18" fill="#d5d9e0"/><rect x="138" y="96" width="40" height="64" rx="18" fill="#d5d9e0"/></svg>
+          </div>
+          <button class="btn btn-blue interact" id="interact">Interact in 3D</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="faq">
+    <div class="wrap">
+      <div class="sec-head center rise"><p class="eyebrow">Questions</p><h2>Good to know.</h2></div>
+      <div class="faq">
+        <details><summary>Which 3D files can I use?</summary><p>GLB and glTF for the model, plus USDZ for AR on iPhone and iPad. Compressed models load too (Draco, Meshopt and KTX2 textures). Models are ordinary Media Library files, and you can also point to a file hosted on a CDN.</p></details>
+        <details><summary>Do I need a separate model for every color?</summary><p>No. Upload one model and set what each WooCommerce variation changes: colors, textures, materials, or which parts show. A variation can also use a different model if it needs one.</p></details>
+        <details><summary>Will 3D slow down my product pages?</summary><p>By default shoppers see a light poster first, and the 3D engine loads only when they click. The engine only loads on pages that need it, and lighting files, decoders and the AR QR code are served from your own store.</p></details>
+        <details><summary>Do shoppers need an app for AR?</summary><p>No. iPhone and iPad use Quick Look with a USDZ file you upload, Android uses Scene Viewer, and desktop shows a QR code. With the “AR of the configured product” module, shoppers see their own colors and parts in AR.</p></details>
+        <details><summary>What happens to my data if I uninstall?</summary><p>It stays, unless you turn on “Delete all 3D configurator data” first. Order history is always kept, and turning a module off keeps its settings.</p></details>
+        <details><summary>Which products and themes does it work with?</summary><p>Simple and variable WooCommerce products. It works with classic and block themes, the Cart and Checkout blocks, HPOS, Elementor (with a widget) and variation swatch plugins that use WooCommerce's standard variation events.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec cta" style="background:var(--white)">
+    <div class="wrap rise">
+      <h2>Let them build it.</h2>
+      <p>Every feature comes with the licence. There are no tiers to compare.</p>
+      <div class="row">
+        <a class="btn btn-blue" href="https://bplugins.com/products/woocommerce-product-configurator/" target="_blank" rel="noopener">Buy the configurator</a>
+        <a class="btn-link" href="https://3d-viewer.bplugins.com/product/custom-sneaker/" target="_blank" rel="noopener"><span>Try the live demo</span></a>
+      </div>
+      <p class="reqs">WordPress 6.2+ · PHP 7.4+ · WooCommerce 7.0+ · Simple and variable products</p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <ol>
+      <li>The headphones on this page are an original demo design, drawn in code in your browser. They are not a real product, and the prices are examples. Add to cart and Share are simulated here.</li>
+      <li>WordPress is a trademark of the WordPress Foundation. WooCommerce is a trademark of Automattic Inc. iPhone, iPad and Quick Look are trademarks of Apple Inc. Android and Scene Viewer are trademarks of Google LLC. Elementor is a trademark of Elementor Ltd. Other names are the property of their owners. Their use here describes compatibility and does not imply endorsement.</li>
+    </ol>
+    <div class="foot-row">
+      <span>3D Product Configurator for WooCommerce, by bPlugins.</span>
+      <span><a href="https://bplugins.com/products/woocommerce-product-configurator/" target="_blank" rel="noopener">Product page</a> · <a href="https://3d-viewer.bplugins.com/" target="_blank" rel="noopener">Demo store</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="assets/studio3d.js"></script>
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = 'https://3d-viewer.bplugins.com/product/custom-sneaker/';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var money = function(n){ return '$' + n.toFixed(2); };
+
+  function toast(msg){
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast.t); toast.t = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+  }
+  function qrInto(el, text){
+    if (!window.qrcode) { el.textContent = ''; return; }
+    var q = qrcode(0, 'M'); q.addData(text); q.make();
+    el.innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+  }
+
+  /* ---------- configurator ---------- */
+  var OPTS = {
+    cup: [
+      { id:'sand', name:'Sand', hex:'#e3dccf', price:0 },
+      { id:'graphite', name:'Graphite', hex:'#30343d', price:0 },
+      { id:'glacier', name:'Glacier', hex:'#a7c4dc', price:15 },
+      { id:'coral', name:'Coral', hex:'#e8735f', price:15 }
+    ],
+    band: [
+      { id:'ivory', name:'Ivory', hex:'#f1ede6', price:0 },
+      { id:'charcoal', name:'Charcoal', hex:'#2b2e35', price:0 },
+      { id:'blush', name:'Blush', hex:'#f2c9bd', price:0 },
+      { id:'mist', name:'Mist', hex:'#cfdbe6', price:0 }
+    ],
+    cushion: [
+      { id:'knit', name:'Knit', hex:'#ece7df', price:0 },
+      { id:'leather', name:'Leather', hex:'#3a3532', price:20 }
+    ]
+  };
+  var state = { cup:'sand', band:'ivory', cushion:'knit', trim:true, text:'' };
+  var history = [JSON.stringify(state)], hIdx = 0;
+  var find = function(g, id){ return OPTS[g].filter(function(o){ return o.id === id; })[0]; };
+
+  ['cup','band'].forEach(function(g){
+    var row = document.querySelector('[data-group="' + g + '"]');
+    OPTS[g].forEach(function(o){
+      var b = document.createElement('button');
+      b.className = 'sw'; b.style.setProperty('--c', o.hex); b.dataset.id = o.id;
+      b.setAttribute('aria-label', o.name + (o.price ? ', plus ' + money(o.price) : ''));
+      b.title = o.name + (o.price ? ' +' + money(o.price) : '');
+      b.addEventListener('click', function(){ commit(g, o.id); });
+      row.appendChild(b);
+    });
+  });
+  var cushRow = document.querySelector('[data-group="cushion"]');
+  OPTS.cushion.forEach(function(o){
+    var b = document.createElement('button');
+    b.className = 'chip'; b.dataset.id = o.id;
+    b.innerHTML = o.name + (o.price ? ' <small>+' + money(o.price) + '</small>' : '');
+    b.addEventListener('click', function(){ commit('cushion', o.id); });
+    cushRow.appendChild(b);
+  });
+
+  var viewer = window.Studio3D ? Studio3D($('cfg-canvas'), { yaw:-.55, fill:.85, onInteract:function(){ $('hint').classList.add('gone'); } }) : null;
+  if (!viewer) $('cfg').classList.add('no-gl');
+
+  function price(){
+    var lines = [], total = 249;
+    var c = find('cup', state.cup), k = find('cushion', state.cushion);
+    if (c.price){ total += c.price; lines.push(c.name + ' cups +' + money(c.price)); }
+    if (k.price){ total += k.price; lines.push(k.name + ' cushions +' + money(k.price)); }
+    if (state.text){ total += 10; lines.push('Engraving +$10.00'); }
+    return { total:total, lines:lines };
+  }
+  function render(){
+    ['cup','band'].forEach(function(g){
+      document.querySelectorAll('[data-group="' + g + '"] .sw').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.id === state[g] ? 'true' : 'false'); });
+    });
+    cushRow.querySelectorAll('.chip').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.id === state.cushion ? 'true' : 'false'); });
+    $('l-cup').textContent = find('cup', state.cup).name;
+    $('l-band').textContent = find('band', state.band).name;
+    $('trim').checked = state.trim;
+    if (document.activeElement !== $('engrave')) $('engrave').value = state.text;
+    $('engrave-count').textContent = state.text.length + '/3';
+    var p = price();
+    $('total').textContent = money(p.total);
+    $('lines').textContent = p.lines.length ? p.lines.join(' · ') : 'Base price';
+    $('undo').disabled = hIdx === 0; $('redo').disabled = hIdx === history.length - 1;
+    if (viewer){
+      viewer.setColors({ cup:find('cup', state.cup).hex, band:find('band', state.band).hex, cushion:find('cushion', state.cushion).hex });
+      viewer.setCushion(state.cushion); viewer.setTrim(state.trim); viewer.setText(state.text);
+    }
+    if (!$('share-pop').hidden) refreshShare();
+  }
+  function commit(key, val){
+    if (state[key] === val) return;
+    state[key] = val;
+    history = history.slice(0, hIdx + 1); history.push(JSON.stringify(state));
+    if (history.length > 51) history.shift();
+    hIdx = history.length - 1;
+    render();
+  }
+  function step(d){
+    var n = hIdx + d; if (n < 0 || n >= history.length) return;
+    hIdx = n; state = JSON.parse(history[hIdx]); render();
+  }
+  $('undo').addEventListener('click', function(){ step(-1); });
+  $('redo').addEventListener('click', function(){ step(1); });
+  addEventListener('keydown', function(e){
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z') return;
+    if (document.activeElement === $('engrave')) return;
+    var r = $('cfg').getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+    e.preventDefault(); step(e.shiftKey ? 1 : -1);
+  });
+  $('trim').addEventListener('change', function(e){ commit('trim', e.target.checked); });
+  var typing;
+  $('engrave').addEventListener('input', function(e){
+    var v = e.target.value.replace(/[^A-Za-z0-9&.]/g, '').toUpperCase().slice(0, 3);
+    e.target.value = v; $('engrave-count').textContent = v.length + '/3';
+    if (viewer) viewer.setText(v);
+    clearTimeout(typing); typing = setTimeout(function(){ commit('text', v); }, 350);
+    if (viewer && v) viewer.setYaw(-1.25);
+  });
+  $('t-explode').addEventListener('click', function(){
+    var on = this.getAttribute('aria-pressed') !== 'true';
+    this.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (viewer) viewer.setExplode(on ? 1 : 0);
+  });
+  $('t-reset').addEventListener('click', function(){ if (viewer){ viewer.setYaw(-.55); viewer.setExplode(0); } $('t-explode').setAttribute('aria-pressed', 'false'); });
+  $('add').addEventListener('click', function(){
+    var c = find('cup', state.cup);
+    toast('Added to cart (demo): ' + c.name + ' headphones, ' + money(price().total));
+  });
+
+  function code(){
+    var s = JSON.stringify(state), h = 0;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return h.toString(36).toUpperCase().slice(0, 6);
+  }
+  function refreshShare(){
+    var c = code();
+    $('share-code').textContent = 'example.com/?wc3d=' + c;
+    qrInto($('share-qr'), DEMO + '#' + c);
+  }
+  $('share').addEventListener('click', function(){ $('share-pop').hidden = false; refreshShare(); });
+  $('share-close').addEventListener('click', function(){ $('share-pop').hidden = true; });
+  $('share-copy').addEventListener('click', function(){
+    var t = $('share-code').textContent;
+    var done = function(){ toast('Link copied (example link)'); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, function(){ selectText($('share-code')); });
+    else selectText($('share-code'));
+  });
+  function selectText(el){ var r = document.createRange(); r.selectNodeContents(el); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+  render();
+
+  /* ---------- scroll-lit statement ---------- */
+  var st = $('statement');
+  st.innerHTML = st.textContent.trim().split(/\s+/).map(function(w){ return '<span class="w">' + w + '</span>'; }).join(' ');
+  var words = st.querySelectorAll('.w');
+  function lightWords(){
+    var r = st.getBoundingClientRect();
+    var f = reduce ? 1 : Math.max(0, Math.min(1, (innerHeight * .85 - r.top) / (r.height + innerHeight * .3)));
+    var n = Math.round(f * words.length);
+    for (var i = 0; i < words.length; i++) words[i].classList.toggle('lit', i < n);
+  }
+  addEventListener('scroll', function(){ requestAnimationFrame(lightWords); }, { passive:true });
+  lightWords();
+
+  /* ---------- conditional logic ---------- */
+  var L = { conn:'wired', cable:'Black', kase:'none' };
+  function pick(groupId, key){
+    $(groupId).querySelectorAll('.chip').forEach(function(b){
+      b.addEventListener('click', function(){ L[key] = b.dataset.v; logic(); });
+    });
+  }
+  pick('conn', 'conn'); pick('cable', 'cable'); pick('case', 'kase');
+  function logic(){
+    var wired = L.conn === 'wired';
+    [['conn','conn'],['cable','cable'],['case','kase']].forEach(function(p){
+      $(p[0]).querySelectorAll('.chip').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.v === L[p[1]] ? 'true' : 'false'); });
+    });
+    $('g-cable').classList.toggle('hidden', !wired);
+    $('g-case').classList.toggle('hidden', wired);
+    $('g-cable').inert = !wired; $('g-case').inert = wired;
+    $('cable-name').textContent = L.cable;
+    $('r-cable').classList.toggle('active', wired); $('r-cable').querySelector('.state').textContent = wired ? 'Showing' : 'Hidden';
+    $('r-case').classList.toggle('active', !wired); $('r-case').querySelector('.state').textContent = !wired ? 'Showing' : 'Hidden';
+    var total = 249 + (wired ? (L.cable === 'Braided' ? 12 : 0) : 50 + (L.kase === 'fabric' ? 29 : 0));
+    $('logic-total').textContent = money(total);
+    var ignored = wired ? (L.kase === 'fabric' ? 'The fabric case you picked is hidden now, so it is not charged.' : '') : (L.cable === 'Braided' ? 'The braided cable you picked is hidden now, so it is not charged.' : '');
+    $('logic-note').textContent = ignored || 'Hidden groups are never required and never charged.';
+  }
+  logic();
+
+  /* ---------- placement ---------- */
+  var NOTES = {
+    replace:'The 3D viewer takes the place of the main product image.',
+    gallery:'The 3D viewer becomes the first slide, and your photos follow it.',
+    modal:'Your photos stay put. A “View in 3D” button opens the viewer in a popup. Click it in the mock-up.',
+    tab:'A “3D View” tab joins Description and Reviews.',
+    shortcode:'Paste the shortcode anywhere, with options for size, toolbar, customizer and background. A block and an Elementor widget are there too.'
+  };
+  var place = $('place'), mock = $('mock');
+  function setMode(m){
+    place.dataset.mode = m; mock.dataset.mode = m;
+    place.querySelectorAll('.tab').forEach(function(t){ t.setAttribute('aria-selected', t.dataset.mode === m ? 'true' : 'false'); });
+    var main = $('m-main'), first = $('m-first');
+    var mainIs3d = m === 'replace' || m === 'gallery' || m === 'shortcode';
+    main.querySelector(':scope > .cube').style.display = mainIs3d ? '' : 'none';
+    main.classList.toggle('is3d', mainIs3d);
+    if (!main.querySelector('.photo')) main.insertAdjacentHTML('afterbegin', '<span class="photo"></span>');
+    main.querySelector('.photo').style.display = mainIs3d ? 'none' : '';
+    first.innerHTML = m === 'gallery' ? '<span class="cube sm"><i></i><i></i><i></i><i></i><i></i><i></i></span>' : '';
+    first.classList.toggle('is3d', m === 'gallery');
+    $('m-tab3d').style.display = m === 'tab' ? '' : 'none';
+    $('m-tab3d').classList.toggle('on', m === 'tab');
+    $('overlay').classList.remove('open');
+    $('place-note').textContent = NOTES[m];
+  }
+  place.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click', function(){ setMode(t.dataset.mode); }); });
+  $('pop3d').addEventListener('click', function(){ $('overlay').classList.add('open'); });
+  $('overlay').addEventListener('click', function(){ $('overlay').classList.remove('open'); });
+  $('copy-sc').addEventListener('click', function(){
+    var t = '[wc3d_viewer id="42" height="480px" customizer="true"]';
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ toast('Shortcode copied'); }, function(){});
+  });
+  setMode('replace');
+
+  /* ---------- click to interact ---------- */
+  var loaded = false;
+  $('interact').addEventListener('click', function(){
+    if (loaded) return; loaded = true;
+    var steps = $('load-steps').children;
+    steps[1].classList.add('done');
+    this.textContent = 'Loading 3D…';
+    var btn = this;
+    setTimeout(function(){
+      var v = window.Studio3D ? Studio3D($('load-canvas'), { yaw:.5, fill:.9 }) : null;
+      if (v) v.setColors({ cup:'#e8735f', band:'#f5d1c6', cushion:'#f2e0d9' });
+      $('poster').classList.add('gone'); btn.remove(); steps[2].classList.add('done');
+    }, reduce ? 0 : 450);
+  });
+})();
+</script>
+</body>
+</html>

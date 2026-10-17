@@ -36,11 +36,18 @@ https://cdn.jsdelivr.net/gh/bPlugins/3d-viewer-assets@v1/hdri/<file>
 
 ## `landing-page/` — product landing page
 
-A standalone, animated landing page for **3D Product Configurator for
-WooCommerce**: a live three.js product that recolors, comes apart, gets
-engraved, gets priced and drops into AR as you scroll, followed by feature
-sections. Open `landing-page/index.html` in a browser. It loads three.js r128
-and Hanken Grotesk from public CDNs; everything else is in the folder.
+Three versions of a standalone, animated landing page for **3D Product
+Configurator for WooCommerce**. Open them in a browser:
+
+| File | Version |
+| --- | --- |
+| `index.html` | Scroll story: a live 3D product recolors, comes apart, gets engraved, gets priced and drops into AR as you scroll |
+| `v2.html` | Studio (light): a working configurator, conditional-logic, placement and click-to-interact demos, FAQ |
+| `v3.html` | Night (dark): hotspots, lighting and exploded-view studio, sideways feature chapters, share-link QR builder |
+
+`v2.html` and `v3.html` share `assets/studio3d.js`. All three load three.js
+r128, qrcode-generator 1.4.4 and Hanken Grotesk from public CDNs, and all carry
+`noindex, nofollow`.
 
 The plugins never download anything from this folder, and it is not part of
 any tag's HDRI set.

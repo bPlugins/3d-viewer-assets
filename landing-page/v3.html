@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D Product Configurator Night</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="3D Product Configurator for WooCommerce: hotspots, lighting, exploded views, sharing and AR, all live on the page.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: a dark gallery of live 3D rooms (hero, hotspots, lighting studio), a sideways chapter strip, then share + AR, closing on a light band. */
+:root{
+  --bg:#07080b;
+  --panel:#111318;
+  --panel-2:#171a20;
+  --line:#23262d;
+  --text:#eef0f4;
+  --muted:#9aa0aa;
+  --dim:#5d636e;
+  --blue:#146ef5;
+  --link:#4d94ff;
+  --coral:#e8735f;
+  --green:#34c77b;
+  --paper:#f3f4f7;
+  --ink:#16181d;
+  --display:"Hanken Grotesk",system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+  --gl:max(16px, env(safe-area-inset-left, 0px));
+  --gr:max(16px, env(safe-area-inset-right, 0px));
+  --ease:cubic-bezier(.2,.7,.2,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--display);font-size:17px;line-height:1.47;-webkit-font-smoothing:antialiased;overflow-x:clip}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.025em}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:8px}
+.section-anchor,section[id]{scroll-margin-top:64px}
+.wrap{max-width:1160px;margin-inline:auto;padding-left:var(--gl);padding-right:var(--gr)}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:40;padding-top:env(safe-area-inset-top,0px);background:rgba(7,8,11,.7);backdrop-filter:saturate(160%) blur(18px);-webkit-backdrop-filter:saturate(160%) blur(18px);border-bottom:1px solid rgba(255,255,255,.06)}
+.nav .wrap{display:flex;align-items:center;gap:22px;height:54px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;text-decoration:none;color:var(--text);white-space:nowrap}
+.nav-links{display:flex;gap:22px;margin-left:auto;font-size:14px}
+.nav-links a{color:var(--muted);text-decoration:none}
+.nav-links a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:9px 20px;border-radius:999px;border:0;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .2s,transform .15s}
+.btn:active{transform:scale(.97)}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:#0d5ad1}
+.btn-sm{min-height:32px;padding:5px 14px;font-size:13px}
+.btn-ghost{background:rgba(255,255,255,.08);color:var(--text)}
+.btn-ghost:hover{background:rgba(255,255,255,.14)}
+.btn-link{color:var(--link);font-weight:600;text-decoration:none}
+.btn-link span{text-underline-offset:4px}
+.btn-link:hover span{text-decoration:underline}
+.btn-link::after{content:" ›"}
+@media (max-width:760px){.nav-links{display:none}.nav .btn{margin-left:auto}}
+
+/* hero */
+.hero{position:relative;padding-top:calc(54px + env(safe-area-inset-top,0px) + clamp(36px,6vw,72px));text-align:center;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(50% 40% at 50% 62%,rgba(20,110,245,.22),transparent 70%),radial-gradient(30% 25% at 70% 70%,rgba(232,115,95,.14),transparent 70%);pointer-events:none}
+.hero h1{position:relative;font-size:clamp(48px,9vw,128px);line-height:.95;letter-spacing:-.045em;font-weight:800}
+.hero h1 span{display:inline-block;animation:drop 1s var(--ease) both;animation-delay:calc(var(--i) * 140ms)}
+.hero h1 span:nth-child(3){background:linear-gradient(90deg,var(--link),#9fc1ff 40%,var(--coral));-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes drop{from{opacity:0;transform:translateY(.4em) scale(.96);filter:blur(10px)}}
+.hero .sub{position:relative;margin:18px auto 0;max-width:44ch;color:var(--muted);font-size:clamp(17px,1.6vw,21px);animation:drop 1s var(--ease) .45s both}
+.hero-stage{position:relative;height:clamp(300px,46vh,560px);margin-top:clamp(8px,2vw,24px)}
+.hero-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none}
+.hero-dots{position:relative;display:flex;justify-content:center;gap:12px;margin-top:-8px}
+.dot{width:30px;height:30px;border-radius:50%;border:0;padding:0;cursor:pointer;background:var(--c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);outline:2px solid transparent;outline-offset:3px;transition:outline-color .25s,transform .25s}
+.dot[aria-pressed="true"]{outline-color:var(--text);transform:scale(1.08)}
+.hero-row{position:relative;display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:28px;padding-bottom:clamp(64px,8vw,104px)}
+.drag-note{font-size:13px;color:var(--dim);margin-top:12px}
+
+/* shared section bits */
+.sec{padding-block:clamp(72px,10vw,136px)}
+.sec-head{max-width:720px}
+.sec-head h2{font-size:clamp(38px,5.4vw,68px);line-height:1.02;letter-spacing:-.035em;margin-top:10px}
+.sec-head p{margin-top:16px;color:var(--muted);font-size:clamp(17px,1.6vw,20px);max-width:42ch}
+.room{position:relative;margin-top:clamp(36px,5vw,56px);border-radius:32px;overflow:hidden;background:var(--panel);border:1px solid var(--line)}
+@supports (animation-timeline: view()){
+  .rise{animation:rise linear both;animation-timeline:view();animation-range:entry 5% entry 65%}
+  @keyframes rise{from{opacity:0;transform:translateY(44px)}}
+}
+
+/* hotspots */
+.hot-room{height:clamp(420px,62vh,620px);background:radial-gradient(70% 60% at 50% 50%,#1a1d24,var(--panel))}
+.hot-room canvas{position:absolute;inset:0;width:100%;height:100%;outline:none}
+.pin{position:absolute;left:0;top:0;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:0;background:#fff;color:var(--ink);font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 0 0 0 rgba(77,148,255,.6);animation:ping 2.2s ease-out infinite;transition:opacity .3s}
+.pin.back{opacity:0;pointer-events:none}
+.pin[aria-expanded="true"]{background:var(--link);color:#fff;animation:none}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(77,148,255,.55)}100%{box-shadow:0 0 0 16px rgba(77,148,255,0)}}
+.pop{position:absolute;left:0;top:0;width:250px;padding:16px;border-radius:18px;background:rgba(17,19,24,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 60px -20px rgba(0,0,0,.8);font-size:14px;animation:popIn .3s var(--ease)}
+@keyframes popIn{from{opacity:0}}
+.pop h4{margin:0 0 4px;font-size:16px}
+.pop p{color:var(--muted)}
+.pop .prod{display:flex;gap:12px;align-items:center;margin-top:12px;padding:10px;border-radius:12px;background:rgba(255,255,255,.05)}
+.pop .thumb{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#f5d1c6,#e8735f);flex:none}
+.pop .prod b{display:block}
+.pop .prod span{color:var(--green);font-weight:700}
+.pop .row{display:flex;gap:8px;margin-top:12px}
+.pop .row .btn{flex:1}
+.legend{position:absolute;left:20px;bottom:18px;display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--muted);max-width:calc(100% - 40px)}
+.legend span{padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.06)}
+
+/* studio: lighting + exploded view */
+.studio{display:grid;grid-template-columns:minmax(0,1fr) 300px;transition:background .8s}
+.studio-stage{position:relative;min-height:clamp(420px,60vh,600px)}
+.studio-stage canvas{position:absolute;inset:0;width:100%;height:100%;outline:none}
+.studio-panel{padding:26px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:22px;background:rgba(0,0,0,.25)}
+.studio-panel h3{font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.envs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.env{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:transparent;cursor:pointer;text-align:left;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;transition:border-color .25s,background .25s}
+.env i{width:16px;height:16px;border-radius:50%;background:var(--sw);flex:none}
+.env[aria-pressed="true"]{border-color:var(--link);background:rgba(77,148,255,.12)}
+.range{margin-top:14px}
+.range input{width:100%;accent-color:var(--link)}
+.range div{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-top:4px}
+.tag{position:absolute;left:0;top:0;font:12px var(--mono);padding:6px 10px;border-radius:99px;background:rgba(17,19,24,.85);border:1px solid rgba(255,255,255,.14);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s}
+.studio-note{font-size:13px;color:var(--dim);margin-top:auto}
+@media (max-width:860px){.studio{grid-template-columns:minmax(0,1fr)}.studio-panel{border-left:0;border-top:1px solid var(--line)}.studio-stage{min-height:380px}}
+
+/* horizontal chapters */
+.hs{position:relative;height:400vh}
+.hs-sticky{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.hs-head{padding-top:calc(54px + env(safe-area-inset-top,0px))}
+.hs-track{display:flex;gap:24px;margin-top:clamp(24px,4vh,44px);padding-left:max(var(--gl), calc((100vw - 1160px) / 2 + 16px));padding-right:var(--gr);will-change:transform}
+.chap{flex:none;width:min(420px,78vw);height:min(460px,58vh);border-radius:28px;background:var(--panel);border:1px solid var(--line);padding:28px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.chap h3{font-size:clamp(24px,2.4vw,30px);line-height:1.1}
+.chap p{color:var(--muted);font-size:15px}
+.viz{margin-top:auto;border-radius:18px;background:var(--panel-2);padding:16px;font-size:13px;min-height:150px;display:flex;flex-direction:column;gap:8px;justify-content:center}
+.hs-progress{height:3px;background:var(--line);border-radius:3px;margin-top:28px;overflow:hidden;max-width:1128px;margin-inline:auto;width:calc(100% - 32px)}
+.hs-progress i{display:block;height:100%;width:100%;background:var(--link);transform-origin:left;transform:scaleX(0)}
+.mrow{display:grid;grid-template-columns:70px 1fr auto;gap:10px;align-items:center}
+.mrow b{font-weight:600}
+.mrow code{font:12px var(--mono);padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.06);animation:fadeLoop 4s ease-in-out infinite;animation-delay:var(--d)}
+.mrow em{font-style:normal;color:var(--green);animation:fadeLoop 4s ease-in-out infinite;animation-delay:var(--d)}
+@keyframes fadeLoop{0%,15%{opacity:0}30%,100%{opacity:1}}
+.swatch-loop{display:flex;gap:10px;justify-content:center}
+.swatch-loop i{width:34px;height:34px;border-radius:50%;background:var(--c);animation:pick 4s infinite;animation-delay:var(--d)}
+@keyframes pick{0%,20%{box-shadow:0 0 0 0 transparent;transform:none}25%,45%{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--text);transform:scale(1.1)}50%,100%{box-shadow:none;transform:none}}
+.part{height:56px;border-radius:28px;margin:6px auto 0;width:70%;animation:recolor 4s infinite}
+@keyframes recolor{0%,24%{background:#e3dccf}25%,49%{background:#30343d}50%,74%{background:#a7c4dc}75%,100%{background:#e8735f}}
+.typing{display:flex;align-items:center;gap:8px;padding:12px;border-radius:12px;background:rgba(255,255,255,.05);font-weight:700;letter-spacing:.12em}
+.typing span{overflow:hidden;white-space:nowrap;width:0;animation:type 4s steps(2) infinite}
+.typing i{width:2px;height:18px;background:var(--link);animation:blink 1s steps(1) infinite}
+@keyframes type{0%,10%{width:0}40%,100%{width:2.4ch}}
+@keyframes blink{50%{opacity:0}}
+.ptable div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.ptable div:last-child{border:0;font-weight:700;font-size:16px}
+.ptable .flash{animation:flash 3s infinite}
+@keyframes flash{0%,70%,100%{color:inherit}80%{color:var(--green)}}
+.order-line{padding:12px;border-radius:12px;background:rgba(255,255,255,.05);line-height:1.5}
+.order-line small{display:block;color:var(--muted)}
+.order-btn{align-self:flex-start;margin-top:8px;padding:7px 12px;border-radius:10px;background:var(--text);color:var(--ink);font-weight:700;font-size:12px;animation:nudge 2.4s ease-in-out infinite}
+@keyframes nudge{50%{transform:translateY(-3px)}}
+.cov div{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.cov div:last-child{border:0}
+.pill{font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px}
+.pill.ok{background:rgba(52,199,123,.15);color:var(--green)}
+.pill.warn{background:rgba(255,179,64,.15);color:#ffb340}
+@media (max-width:760px){
+  .hs{height:auto}
+  .hs-sticky{position:static;height:auto;padding-block:72px}
+  .hs-track{flex-direction:column;transform:none!important;padding-left:var(--gl)}
+  .chap{width:100%;height:auto}
+  .hs-progress{display:none}
+}
+
+/* share + AR */
+.duo{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;margin-top:clamp(36px,5vw,56px)}
+.box{border-radius:28px;background:var(--panel);border:1px solid var(--line);padding:clamp(22px,3vw,34px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.box h3{font-size:clamp(24px,2.4vw,30px)}
+.box p{color:var(--muted)}
+.share-grid{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:20px;align-items:center}
+.lbl{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.sw-row{display:flex;gap:10px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:transparent;font-size:13px;font-weight:600;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--ink);border-color:var(--text)}
+.qr{background:#fff;border-radius:16px;padding:10px}
+[data-qr] svg,.qr svg{display:block;width:100%;height:auto}
+.linkbox{display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);font:13px var(--mono)}
+.linkbox code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.expiry{font-size:13px;color:var(--dim)}
+.ar-qr{width:min(220px,70%);margin:6px auto 0;position:relative}
+.ar-qr .scan{position:absolute;left:8%;right:8%;height:2px;background:var(--link);box-shadow:0 0 14px var(--link);top:12%;animation:scan 2.6s ease-in-out infinite alternate}
+@keyframes scan{to{top:86%}}
+.devices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:13px;text-align:center}
+.devices div{padding:10px 6px;border-radius:12px;background:rgba(255,255,255,.05)}
+.devices b{display:block;font-size:14px}
+.devices span{color:var(--muted)}
+@media (max-width:860px){.duo{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:460px){.share-grid{grid-template-columns:minmax(0,1fr)}.share-grid .qr{width:150px}}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;z-index:60;background:var(--text);color:var(--ink);padding:12px 18px;border-radius:14px;font-size:15px;font-weight:600;transition:opacity .3s,transform .35s var(--ease);pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* closing light band */
+.end{background:var(--paper);color:var(--ink);text-align:center}
+.end h2{font-size:clamp(44px,7.4vw,96px);line-height:.98;letter-spacing:-.045em;font-weight:800}
+.end p{margin:18px auto 0;color:#636873;font-size:19px;max-width:36ch}
+.end .row{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;margin-top:30px}
+.end .btn-link{color:var(--blue)}
+.end .reqs{font-size:14px;margin-top:24px}
+.foot{background:var(--paper);color:#636873;font-size:12px;line-height:1.5;border-top:1px solid #dfe2e8;padding-block:24px 36px}
+.foot ol{margin:0 0 16px;padding-left:18px;display:grid;gap:6px;max-width:74em}
+.foot a{color:var(--ink)}
+.foot-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px;padding-top:14px;border-top:1px solid #dfe2e8}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7L12 2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3.8 7.2 12 11.6l8.2-4.4M12 11.6v9.6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      3D Product Configurator
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#hotspots">Hotspots</a><a href="#studio">Studio</a><a href="#chapters">Features</a><a href="#share">Share &amp; AR</a>
+    </nav>
+    <a class="btn btn-blue btn-sm" href="https://bplugins.com/products/woocommerce-product-configurator/" target="_blank" rel="noopener">Buy</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow" style="position:relative">3D Product Configurator for WooCommerce</p>
+      <h1><span style="--i:0">Spin it.</span> <span style="--i:1">Build it.</span><br><span style="--i:2">Buy it.</span></h1>
+      <p class="sub">Shoppers turn your product in 3D, make it theirs and add it to the cart, without leaving the product page.</p>
+    </div>
+    <div class="hero-stage"><canvas id="hero-canvas" aria-label="Demo headphones in 3D. Drag or use the arrow keys to turn them."></canvas></div>
+    <div class="hero-dots" role="group" aria-label="Finish">
+      <button class="dot" style="--c:#e3dccf" data-i="0" aria-label="Sand" aria-pressed="false"></button>
+      <button class="dot" style="--c:#30343d" data-i="1" aria-label="Graphite" aria-pressed="false"></button>
+      <button class="dot" style="--c:#a7c4dc" data-i="2" aria-label="Glacier" aria-pressed="false"></button>
+      <button class="dot" style="--c:#e8735f" data-i="3" aria-label="Coral" aria-pressed="true"></button>
+    </div>
+    <p class="drag-note">Drag to turn. Pick a finish.</p>
+    <div class="hero-row">
+      <a class="btn btn-blue" href="https://bplugins.com/products/woocommerce-product-configurator/" target="_blank" rel="noopener">Buy</a>
+      <a class="btn-link" href="https://3d-viewer.bplugins.com/product/custom-sneaker/" target="_blank" rel="noopener"><span>Try the live demo</span></a>
+    </div>
+  </section>
+
+  <section class="sec" id="hotspots">
+    <div class="wrap">
+      <div class="sec-head rise">
+        <p class="eyebrow">Hotspots</p>
+        <h2>Let the product do the talking.</h2>
+        <p>Click on the model to pin a note, a link or another product with its price and Add to cart. Try the pins below.</p>
+      </div>
+      <div class="room hot-room rise" id="hot-room">
+        <canvas id="hot-canvas" aria-label="Demo headphones with three hotspots"></canvas>
+        <button class="pin" data-pin="cushL" aria-expanded="false" aria-label="Info hotspot: cushions">i</button>
+        <button class="pin" data-pin="head" aria-expanded="false" aria-label="Product hotspot: spare headband">+</button>
+        <button class="pin" data-pin="cupR" aria-expanded="false" aria-label="Link hotspot: care guide">↗</button>
+        <div class="legend" aria-hidden="true"><span>i · Information</span><span>+ · WooCommerce product</span><span>↗ · External link</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="studio" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head rise">
+        <p class="eyebrow">Scene and parts</p>
+        <h2>Light it. Take it apart.</h2>
+        <p>Pick a lighting setup and pull the model apart to see the parts the editor reads from your file.</p>
+      </div>
+      <div class="room studio rise" id="studio-room">
+        <div class="studio-stage">
+          <canvas id="studio-canvas" aria-label="Demo headphones under different lighting"></canvas>
+          <span class="tag" data-a="cupR">cup_right</span>
+          <span class="tag" data-a="cushL">cushion_left</span>
+          <span class="tag" data-a="head">headband</span>
+          <span class="tag" data-a="yokeL">yoke_left</span>
+        </div>
+        <div class="studio-panel">
+          <div>
+            <h3>Lighting</h3>
+            <div class="envs" role="group" aria-label="Lighting" id="envs">
+              <button class="env" data-env="studio" style="--sw:#e9ecf2" aria-pressed="true"><i></i>Studio</button>
+              <button class="env" data-env="city" style="--sw:#9aa6b5" aria-pressed="false"><i></i>City</button>
+              <button class="env" data-env="dawn" style="--sw:#ffb3c1" aria-pressed="false"><i></i>Dawn</button>
+              <button class="env" data-env="sunset" style="--sw:#ff9a55" aria-pressed="false"><i></i>Sunset</button>
+              <button class="env" data-env="night" style="--sw:#3d5a99" aria-pressed="false"><i></i>Night</button>
+              <button class="env" data-env="warehouse" style="--sw:#d9c2a0" aria-pressed="false"><i></i>Warehouse</button>
+            </div>
+          </div>
+          <div>
+            <h3><label for="explode">Exploded view</label></h3>
+            <div class="range"><input type="range" id="explode" min="0" max="100" value="0"><div><span>Together</span><span>Apart</span></div></div>
+          </div>
+          <p class="studio-note">The plugin ships ten lighting environments built from real HDR photos. This page imitates six of them in code.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hs" id="chapters">
+    <div class="hs-sticky">
+      <div class="wrap hs-head">
+        <p class="eyebrow">From model to order</p>
+        <h2 style="font-size:clamp(34px,4.6vw,58px);line-height:1.04;letter-spacing:-.035em;margin-top:8px">Six things that happen along the way.</h2>
+      </div>
+      <div class="hs-track" id="hs-track">
+        <article class="chap"><p class="eyebrow">Variations</p><h3>One model for every variation.</h3><p>Auto-map pairs attribute values with mesh names, then applies them in one click.</p>
+          <div class="viz"><div class="mrow"><b>Coral</b><code style="--d:0s">Fabric_Coral</code><em style="--d:0s">✓</em></div><div class="mrow"><b>Teal</b><code style="--d:.4s">Fabric_Teal</code><em style="--d:.4s">✓</em></div><div class="mrow"><b>Walnut</b><code style="--d:.8s">Legs_Walnut</code><em style="--d:.8s">✓</em></div></div></article>
+        <article class="chap"><p class="eyebrow">Customizer</p><h3>Shoppers recolor the parts you allow.</h3><p>Your palette, a free color picker if you want it, and friendly names for each part.</p>
+          <div class="viz"><div class="swatch-loop"><i style="--c:#e3dccf;--d:0s"></i><i style="--c:#30343d;--d:1s"></i><i style="--c:#a7c4dc;--d:2s"></i><i style="--c:#e8735f;--d:3s"></i></div><div class="part"></div></div></article>
+        <article class="chap"><p class="eyebrow">Personalization</p><h3>Their text or image, on the model.</h3><p>Nine fonts, your colors and limits, and a price per area. Shoppers move, resize and rotate it.</p>
+          <div class="viz"><div class="typing"><span>JR</span><i></i></div><p style="font-size:13px">Engraving · right ear cup · +$10.00</p></div></article>
+        <article class="chap"><p class="eyebrow">Pricing</p><h3>A live total for every pick.</h3><p>Fixed or percentage charges, sale prices, and a total your server recalculates.</p>
+          <div class="viz ptable"><div><span>Product</span><span>$249.00</span></div><div><span>Options</span><span class="flash">+$25.00</span></div><div><span>Total</span><span class="flash">$274.00</span></div></div></article>
+        <article class="chap"><p class="eyebrow">Orders</p><h3>Know exactly what to make.</h3><p>Every choice lands on the order line, with a 3D preview of what the customer built.</p>
+          <div class="viz"><div class="order-line">Over-ear headphones × 1<small>3D Customization: Cups Coral · Cushions Knit · Engraving “JR”</small></div><span class="order-btn">View 3D Preview</span></div></article>
+        <article class="chap"><p class="eyebrow">Coverage</p><h3>See what each product is missing.</h3><p>Filter by missing AR files, posters or oversized models, and fix them in bulk.</p>
+          <div class="viz cov"><div><span>Lounge Chair</span><span class="pill ok">Ready</span></div><div><span>Custom Sneaker</span><span class="pill warn">No iOS AR file</span></div><div><span>Desk Lamp</span><span class="pill warn">No poster</span></div></div></article>
+      </div>
+      <div class="hs-progress" aria-hidden="true"><i id="hs-bar"></i></div>
+    </div>
+  </section>
+
+  <section class="sec" id="share">
+    <div class="wrap">
+      <div class="sec-head rise">
+        <p class="eyebrow">Share and AR</p>
+        <h2>Send it. Then see it in the room.</h2>
+      </div>
+      <div class="duo">
+        <div class="box rise">
+          <h3>A link that reopens their design.</h3>
+          <p>Shoppers get a short link and a QR code. Signed-in customers can also keep designs in My Account. Build one:</p>
+          <div class="share-grid">
+            <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+              <div><div class="lbl">Finish</div><div class="sw-row" id="share-sw">
+                <button class="dot" style="--c:#e3dccf" data-v="SND" aria-label="Sand" aria-pressed="false"></button>
+                <button class="dot" style="--c:#30343d" data-v="GRP" aria-label="Graphite" aria-pressed="true"></button>
+                <button class="dot" style="--c:#a7c4dc" data-v="GLC" aria-label="Glacier" aria-pressed="false"></button>
+                <button class="dot" style="--c:#e8735f" data-v="CRL" aria-pressed="false" aria-label="Coral"></button>
+              </div></div>
+              <div><div class="lbl">Link lasts</div><div class="chips" id="share-life">
+                <button class="chip" data-d="30" aria-pressed="false">30 days</button><button class="chip" data-d="90" aria-pressed="true">90 days</button><button class="chip" data-d="182" aria-pressed="false">6 months</button><button class="chip" data-d="365" aria-pressed="false">1 year</button><button class="chip" data-d="0" aria-pressed="false">Never</button>
+              </div></div>
+            </div>
+            <div class="qr" id="share-qr" role="img" aria-label="QR code for the example design link"></div>
+          </div>
+          <div class="linkbox"><code id="share-link">example.com/?wc3d=…</code><button class="btn btn-sm btn-ghost" id="copy">Copy</button></div>
+          <p class="expiry" id="expiry"></p>
+        </div>
+        <div class="box rise">
+          <h3>AR with no app to install.</h3>
+          <p>Quick Look on iPhone and iPad, Scene Viewer on Android, a QR code on desktop. Scan this one to open the live demo on your phone.<sup>1</sup></p>
+          <a class="ar-qr" href="https://3d-viewer.bplugins.com/product/custom-sneaker/" target="_blank" rel="noopener"><span class="qr" data-qr="https://3d-viewer.bplugins.com/product/custom-sneaker/" style="display:block" role="img" aria-label="QR code that opens the live demo"></span><i class="scan" aria-hidden="true"></i></a>
+          <div class="devices"><div><b>iPhone, iPad</b><span>Quick Look</span></div><div><b>Android</b><span>Scene Viewer</span></div><div><b>Desktop</b><span>QR code</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec end">
+    <div class="wrap rise">
+      <h2>Let them<br>build it.</h2>
+      <p>Every feature comes with the licence. There are no tiers to compare.</p>
+      <div class="row">
+        <a class="btn btn-blue" href="https://bplugins.com/products/woocommerce-product-configurator/" target="_blank" rel="noopener">Buy the configurator</a>
+        <a class="btn-link" href="https://3d-viewer.bplugins.com/product/custom-sneaker/" target="_blank" rel="noopener"><span>Try the live demo</span></a>
+      </div>
+      <p class="reqs">WordPress 6.2+ · PHP 7.4+ · WooCommerce 7.0+ · Simple and variable products</p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <ol>
+      <li>On iPhone and iPad, AR uses a USDZ file you upload, or the “AR of the configured product” module. On Android the AR file is built in the browser and kept on your own server for up to 24 hours.</li>
+      <li>The headphones on this page are an original demo design, drawn in code in your browser. They are not a real product, and prices, links and product names in the examples are made up. The lighting here imitates the plugin's presets.</li>
+      <li>WordPress is a trademark of the WordPress Foundation. WooCommerce is a trademark of Automattic Inc. iPhone, iPad and Quick Look are trademarks of Apple Inc. Android and Scene Viewer are trademarks of Google LLC. Other names are the property of their owners. Their use here describes compatibility and does not imply endorsement.</li>
+    </ol>
+    <div class="foot-row">
+      <span>3D Product Configurator for WooCommerce, by bPlugins.</span>
+      <span><a href="https://bplugins.com/products/woocommerce-product-configurator/" target="_blank" rel="noopener">Product page</a> · <a href="https://3d-viewer.bplugins.com/" target="_blank" rel="noopener">Demo store</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="assets/studio3d.js"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = 'https://3d-viewer.bplugins.com/product/custom-sneaker/';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var S3 = window.Studio3D;
+  var CW = [
+    { cup:'#e3dccf', band:'#f1ede6', cushion:'#ece7df' },
+    { cup:'#30343d', band:'#22252b', cushion:'#2b2e35' },
+    { cup:'#a7c4dc', band:'#dce8f2', cushion:'#e5edf4' },
+    { cup:'#e8735f', band:'#f5d1c6', cushion:'#f2e0d9' }
+  ];
+  function toast(msg){ var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function(){ t.classList.remove('show'); }, 2600); }
+  function qrInto(el, text){
+    if (!window.qrcode) return;
+    var q = qrcode(0, 'M'); q.addData(text); q.make();
+    el.innerHTML = q.createSvgTag({ cellSize:4, margin:0, scalable:true });
+  }
+  document.querySelectorAll('[data-qr]').forEach(function(el){ qrInto(el, el.dataset.qr); });
+
+  /* hero */
+  var hero = S3 ? S3($('hero-canvas'), { pointerTilt:true, yaw:-.4, fill:.86 }) : null;
+  if (hero) hero.setColors(CW[3]);
+  document.querySelectorAll('.hero-dots .dot').forEach(function(d){
+    d.addEventListener('click', function(){
+      document.querySelectorAll('.hero-dots .dot').forEach(function(x){ x.setAttribute('aria-pressed', x === d ? 'true' : 'false'); });
+      if (hero) hero.setColors(CW[+d.dataset.i]);
+    });
+  });
+
+  /* hotspots */
+  var room = $('hot-room'), hot = S3 ? S3($('hot-canvas'), { yaw:-.9, fill:.85 }) : null, open = null;
+  if (hot) hot.setColors(CW[2]);
+  var CARDS = {
+    cushL: '<h4>Memory-foam cushions</h4><p>Soft knit over slow foam. This is an Information hotspot: a title and a short note.</p>',
+    head: '<h4>Spare headband</h4><p>A WooCommerce Product hotspot sells an accessory right from the model.</p><div class="prod"><span class="thumb"></span><div><b>Padded headband</b><span>$39.00</span></div></div><div class="row"><button class="btn btn-blue btn-sm" data-add>Add to cart</button><button class="btn btn-ghost btn-sm" data-view>View product</button></div>',
+    cupR: '<h4>Care guide</h4><p>An External Link hotspot shows a “Visit Link” button to any page you choose.</p><div class="row"><button class="btn btn-ghost btn-sm" data-visit>Visit Link</button></div>'
+  };
+  var pins = room.querySelectorAll('.pin'), pop = null;
+  function closePop(){ if (pop){ pop.remove(); pop = null; } pins.forEach(function(p){ p.setAttribute('aria-expanded', 'false'); }); open = null; if (hot) hot.setSpin(true); }
+  pins.forEach(function(p){
+    p.addEventListener('click', function(e){
+      e.stopPropagation();
+      var was = open === p.dataset.pin; closePop(); if (was) return;
+      open = p.dataset.pin; p.setAttribute('aria-expanded', 'true'); if (hot) hot.setSpin(false);
+      pop = document.createElement('div'); pop.className = 'pop'; pop.innerHTML = CARDS[open]; room.appendChild(pop);
+      pop.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        if (ev.target.closest('[data-add]')) toast('Added to cart (demo): Padded headband, $39.00');
+        if (ev.target.closest('[data-view]')) toast('On a store, this opens the product page.');
+        if (ev.target.closest('[data-visit]')) toast('On a store, this opens your care guide.');
+      });
+      placePop();
+    });
+  });
+  room.addEventListener('click', closePop);
+  addEventListener('keydown', function(e){ if (e.key === 'Escape') closePop(); });
+  var pinPos = {};
+  function placePop(){
+    if (!pop || !open || !pinPos[open]) return;
+    var p = pinPos[open], rw = room.clientWidth, rh = room.clientHeight;
+    var x = Math.min(Math.max(12, p.x + 24), rw - pop.offsetWidth - 12);
+    if (p.x + 24 + pop.offsetWidth > rw - 12) x = Math.max(12, p.x - pop.offsetWidth - 24);
+    var y = Math.min(Math.max(12, p.y - pop.offsetHeight / 2), rh - pop.offsetHeight - 12);
+    pop.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+  }
+  if (hot) hot.onFrame(function(){
+    pins.forEach(function(p){
+      var s = hot.project(p.dataset.pin); pinPos[p.dataset.pin] = s;
+      p.style.transform = 'translate(' + s.x + 'px,' + s.y + 'px)';
+      p.classList.toggle('back', s.facing < .05 && open !== p.dataset.pin);
+    });
+    placePop();
+  }); else pins.forEach(function(p){ p.hidden = true; });
+
+  /* studio */
+  var studio = S3 ? S3($('studio-canvas'), { yaw:.5, fill:.82 }) : null, tags = document.querySelectorAll('.studio-stage .tag');
+  var ROOM_BG = { studio:'#15171c', city:'#191c21', dawn:'#201b24', sunset:'#24161a', night:'#07090f', warehouse:'#1e1a16' };
+  if (studio) studio.setColors(CW[0]);
+  $('envs').querySelectorAll('.env').forEach(function(b){
+    b.addEventListener('click', function(){
+      $('envs').querySelectorAll('.env').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      if (studio) studio.setEnv(b.dataset.env);
+      $('studio-room').style.background = ROOM_BG[b.dataset.env];
+    });
+  });
+  $('explode').addEventListener('input', function(e){ if (studio) studio.setExplode(e.target.value / 100); });
+  if (studio) studio.onFrame(function(){
+    var o = Math.max(0, Math.min(1, (studio.explode - .45) / .35));
+    tags.forEach(function(t){
+      var s = studio.project(t.dataset.a);
+      t.style.transform = 'translate(' + s.x + 'px,' + s.y + 'px) translate(-50%,-50%)';
+      t.style.opacity = o;
+    });
+  });
+
+  /* horizontal chapters */
+  var hs = $('chapters'), track = $('hs-track'), bar = $('hs-bar'), narrow = matchMedia('(max-width: 760px)');
+  function sizeHs(){
+    if (narrow.matches){ hs.style.height = ''; track.style.transform = ''; return; }
+    var extra = Math.max(0, track.scrollWidth - innerWidth);
+    hs.style.height = (innerHeight + extra) + 'px';
+    hsScroll();
+  }
+  function hsScroll(){
+    if (narrow.matches) return;
+    var r = hs.getBoundingClientRect(), extra = Math.max(0, track.scrollWidth - innerWidth);
+    var p = Math.max(0, Math.min(1, -r.top / Math.max(1, hs.offsetHeight - innerHeight)));
+    track.style.transform = 'translateX(' + (-p * extra) + 'px)';
+    bar.style.transform = 'scaleX(' + p + ')';
+  }
+  addEventListener('scroll', function(){ requestAnimationFrame(hsScroll); }, { passive:true });
+  addEventListener('resize', sizeHs);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeHs);
+  sizeHs();
+
+  /* share builder */
+  var share = { c:'GRP', d:90 };
+  function pickIn(id, key, attr){
+    $(id).querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        share[key] = attr === 'd' ? +b.dataset.d : b.dataset.v;
+        $(id).querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        updateShare();
+      });
+    });
+  }
+  pickIn('share-sw', 'c', 'v'); pickIn('share-life', 'd', 'd');
+  function updateShare(){
+    var code = (share.c + (share.d || 'N')).split('').map(function(ch, i){ return 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[(ch.charCodeAt(0) * (i + 7)) % 32]; }).join('').slice(0, 6);
+    $('share-link').textContent = 'example.com/?wc3d=' + code;
+    qrInto($('share-qr'), DEMO + '#' + code);
+    if (share.d){
+      var dt = new Date(Date.now() + share.d * 864e5);
+      $('expiry').textContent = 'This link would work until ' + dt.toLocaleDateString(undefined, { day:'numeric', month:'long', year:'numeric' }) + '.';
+    } else $('expiry').textContent = 'This link would never expire.';
+  }
+  $('copy').addEventListener('click', function(){
+    var t = $('share-link').textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ toast('Copied (example link)'); }, function(){});
+  });
+  updateShare();
+})();
+</script>
+</body>
+</html>
