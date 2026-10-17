@@ -52,6 +52,23 @@ r128, qrcode-generator 1.4.4 and Hanken Grotesk from public CDNs, and all carry
 The plugins never download anything from this folder, and it is not part of
 any tag's HDRI set.
 
+## `launch-emails/` — launch email templates
+
+`index.html` holds 25 email templates for the launch of **3D Product
+Configurator for WooCommerce** (teasers, launch day, features, stories, use
+cases, follow-ups), with a sidebar, desktop/mobile previews and Copy HTML /
+Download buttons. Open it in a browser. It carries `noindex, nofollow`.
+
+`images/` has JPG copies of the screenshots for clients that don't show WebP
+(classic Outlook):
+
+```
+https://cdn.jsdelivr.net/gh/bPlugins/3d-viewer-assets@main/launch-emails/images/<file>
+```
+
+The plugins never download anything from this folder, and it is not part of
+any tag's HDRI set.
+
 ## License
 
 The HDR images are by [Poly Haven](https://polyhaven.com/hdris) and released
@@ -60,3 +77,5 @@ domain). See [LICENSE](LICENSE).
 
 `landing-page/` is not CC0: it is © bPlugins, and its screenshots show CC BY 4.0
 models credited in the page footer and in [LICENSE](LICENSE).
+
+`launch-emails/` is not CC0 either: it is © bPlugins, all rights reserved.
