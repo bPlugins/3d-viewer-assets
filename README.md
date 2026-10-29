@@ -36,7 +36,7 @@ https://cdn.jsdelivr.net/gh/bPlugins/3d-viewer-assets@v1/hdri/<file>
 
 ## `landing-page/` — product landing page
 
-Three versions of a standalone, animated landing page for **3D Product
+Five versions of a standalone, animated landing page for **3D Product
 Configurator for WooCommerce**. Open them in a browser:
 
 | File | Version |
@@ -44,10 +44,15 @@ Configurator for WooCommerce**. Open them in a browser:
 | `index.html` | Scroll story: a live 3D product recolors, comes apart, gets engraved, gets priced and drops into AR as you scroll |
 | `v2.html` | Studio (light): a working configurator, conditional-logic, placement and click-to-interact demos, FAQ |
 | `v3.html` | Night (dark): hotspots, lighting and exploded-view studio, sideways feature chapters, share-link QR builder |
+| `v4.html` | Combined: the scroll story from `index.html`, the working configurator from `v2.html` (now with "Take it apart" and part labels), then hotspots, share-link and AR from `v3.html` |
+| `v5.html` | `v4.html` plus the sideways feature chapters from `v3.html`, inside the bplugins.com header and footer, with links set for the live product page |
 
-`v2.html` and `v3.html` share `assets/studio3d.js`. All three load three.js
-r128, qrcode-generator 1.4.4 and Hanken Grotesk from public CDNs, and all carry
-`noindex, nofollow`.
+`v2.html` to `v5.html` share `assets/studio3d.js`. All five load three.js
+r128, qrcode-generator 1.4.4 and Hanken Grotesk from public CDNs (`v5.html`
+also loads Manrope, and the bPlugins logo and plugin icons from bplugins.com).
+`index.html` to `v4.html` carry `noindex, nofollow`. `v5.html` is written to
+replace https://bplugins.com/products/woocommerce-product-configurator/, so it
+is indexable and points its canonical URL there.
 
 The plugins never download anything from this folder, and it is not part of
 any tag's HDRI set.
